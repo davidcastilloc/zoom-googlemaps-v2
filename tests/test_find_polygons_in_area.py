@@ -1,7 +1,7 @@
 import unittest
 from shapely.geometry import Polygon
-from lib.kml_process import find_polygons_in_area
-from lib.geometry import get_area_polygon
+from src.lib.kml_process import find_polygons_in_area
+from src.lib.geometry import get_area_polygon
 
 
 class TestFindPolygonsInArea(unittest.TestCase):

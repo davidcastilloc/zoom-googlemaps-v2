@@ -9,7 +9,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Use environment variable for KML file path
-kml_file = os.getenv('KML_FILE_PATH', 'DATABASE/mixed-geometry-v2.kml')
+#kml_file = os.getenv('KML_FILE_PATH', '../DATABASE/mixed-geometry-v2.kml')
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
