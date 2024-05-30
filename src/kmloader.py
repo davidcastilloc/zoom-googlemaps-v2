@@ -49,22 +49,3 @@ class ArbolBinarioDeAreas:
             return self._buscar_kml_recursivo(coordenada, nodo_actual.izquierdo)
         else:
             return self._buscar_kml_recursivo(coordenada, nodo_actual.derecho)
-
-# Ejemplo de uso
-areas = [
-    Area("Area 1", (0, 0), (10, 10), "area1.kml"),
-    Area("Area 2", (10, 10), (20, 20), "area2.kml"),
-    Area("Area 3", (20, 20), (30, 30), "area3.kml")
-]
-
-arbol = ArbolBinarioDeAreas()
-for area in areas:
-    arbol.insertar(area)
-
-# Buscar KML por coordenadas
-coordenada_consulta = (15, 15)
-archivo_kml = arbol.buscar_kml(coordenada_consulta)
-if archivo_kml:
-    print(f"El archivo KML correspondiente es: {archivo_kml}")
-else:
-    print("No se encontró un archivo KML para las coordenadas dadas.")
