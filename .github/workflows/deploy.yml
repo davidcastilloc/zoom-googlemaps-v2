@@ -60,7 +60,7 @@ jobs:
           sudo pip install -U autopep8
           sudo pip install -U flask
           sudo pip install -U flask-cors
-          cd /home/ubuntu/app
+          cd /home/$EC2_USERNAME/${{ github.event.repository.name }}
           rm -rf dist
           rm -rf build
           rm -rf *.egg-info
