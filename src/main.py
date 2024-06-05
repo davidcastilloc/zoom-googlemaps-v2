@@ -23,7 +23,6 @@ def get_kml_area():
         area_polygon = get_area_polygon(bounds)
         logging.info(f"Area ingresada: {area_polygon}")
         # CargarKML con el area ingresada
-        kml_file = ArbolBinarioDeAreas.cargar_kml_area(area_polygon)
         logging.info(f"Archivo KML cargado: {kml_file}")
         print(kml_file)
         return Response(kml_file, mimetype="text/text")
