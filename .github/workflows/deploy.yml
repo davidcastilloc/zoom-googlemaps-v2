@@ -48,7 +48,7 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: $EC2_HOST
-          username: $EC2_USERNAME
+          username: ${{ vars.EC2_USERNAME }}
           key: ${{ secrets.EC2_KEY }}
           script: |
             # Install necessary tools and dependencies
@@ -58,14 +58,14 @@ jobs:
             sudo pip3 install flask
 
             # Navigate to the application directory
-            cd /home/$EC2_USERNAME/app
+            cd /home/${{ vars.EC2_USERNAME }}/app
 
             # Remove old package files
             rm -rf dist
             mkdir dist
 
             # Transfer new package
-            scp -i ${{ secrets.EC2_KEY }} dist/*.whl $EC2_USERNAME@$EC2_HOST:/home/$EC2_USERNAME/app/dist/
+            scp -i ${{ secrets.EC2_KEY }} dist/*.whl ${{ vars.EC2_USERNAME }}@$EC2_HOST:/home/${{ vars.EC2_USERNAME }}/app/dist/
 
             # Install the new package
             pip3 install dist/*.whl
