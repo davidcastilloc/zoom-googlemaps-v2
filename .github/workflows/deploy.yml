@@ -52,10 +52,10 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             # Install necessary tools and dependencies
-            sudo apt-get update
-            sudo apt-get install -y python3-pip
-            sudo pip3 install --upgrade pip
-            sudo pip3 install flask
+            apt-get update
+            apt-get install -y python3-pip
+            pip3 install --upgrade pip
+            pip3 install flask
 
             # Navigate to the application directory
             cd /home/${{ vars.EC2_USERNAME }}/app
