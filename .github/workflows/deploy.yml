@@ -32,7 +32,7 @@ jobs:
       - name: Upload the artifact
         uses: actions/upload-artifact@v3
         with:
-          name: package
+          name: polygon-api-v2
           path: dist
 
   deploy:
@@ -42,7 +42,7 @@ jobs:
       - name: Download the artifact
         uses: actions/download-artifact@v3
         with:
-          name: package
+          name: polygon-api-v2
           path: dist
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
@@ -51,7 +51,7 @@ jobs:
           username: ${{ vars.EC2_USERNAME }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            scp -i ${{ secrets.EC2_KEY }} dist/*.whl ${{ vars.EC2_USERNAME }}@${{ vars.EC2_HOST }}:/home/${{ vars.EC2_USERNAME }}/app/dist/
+            scp -i ${{ secrets.EC2_KEY }} dist/*.whl ${{ vars.EC2_USERNAME }}@${{ vars.EC2_HOST }}:/home/${{ vars.EC2_USERNAME }}/dist
             # Install the new package
             pip3 install dist/*.whl
             # Run the Flask app
