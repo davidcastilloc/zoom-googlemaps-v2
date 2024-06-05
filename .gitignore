@@ -2,3 +2,5 @@
 __pycache__
 *.log
 DATABASE/*
+DATABASE.7z
+src/DATABASE/*

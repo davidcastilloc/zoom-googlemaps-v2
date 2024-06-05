@@ -24,7 +24,7 @@ def load_kml_file(kml_file):
         with open(kml_file, 'rb') as f:
             return parser.parse(f).getroot()
     except FileNotFoundError:
-        return None
+        raise(FileNotFoundError)
 
 
 def create_kml_document():
@@ -45,7 +45,7 @@ def find_polygons_in_area(kml_file, area_polygon):
     kml_output, document = create_kml_document()
     polygons_within_area = 0  # Inicializa el contador de polígonos encontrados
     logging.info("Buscando poligonos en el area")
-    for placemark in kml_root.Document.Placemark:
+    for placemark in kml_root.Document.Folder.Placemark:
         try:
             coordinates = placemark.Polygon.outerBoundaryIs.LinearRing.coordinates.text.strip()
             coordinates = coordinates.split()
