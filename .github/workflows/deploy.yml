@@ -65,10 +65,10 @@ jobs:
             mkdir dist
 
             # Transfer new package
-            scp -i ${{ secrets.EC2_KEY }} dist/*.whl ${{ vars.EC2_USERNAME }}@$EC2_HOST:/home/${{ vars.EC2_USERNAME }}/app/dist/
+            scp -i ${{ secrets.EC2_KEY }} dist/*.whl ${{ vars.EC2_USERNAME }}@${{ vars.EC2_HOST }}:/home/${{ vars.EC2_USERNAME }}/app/dist/
 
             # Install the new package
             pip3 install dist/*.whl
 
             # Run the Flask app
-            FLASK_APP=app.py flask run --host=0.0.0.0 --port=80
+            FLASK_APP=app.py flask run --host=0.0.0.0 --port=5000
