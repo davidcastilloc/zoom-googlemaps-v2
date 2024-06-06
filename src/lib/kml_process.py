@@ -19,9 +19,6 @@ logging.getLogger('').addHandler(file_handler)
 
 KML_NAMESPACE = "http://www.opengis.net/kml/2.2"
 
-# Use environment variable for KML file path
-kml_file = os.getenv("KML_FILE_PATH", "src/DATABASE/")
-
 def load_kml_file(kml_file):
     try:
         with open(kml_file, 'rb') as f:
@@ -34,10 +31,9 @@ def load_all_kml_files_in_directory(directory):
     kml_files = []
     for file in os.listdir(directory):
         if file.endswith(".kml"):
+            print(file)
             kml_files.append(load_kml_file(os.path.join(directory, file)))
     return kml_files
-
-kml_files = load_all_kml_files_in_directory(kml_file)
 
 def create_kml_document():
     kml_output = etree.Element("kml", xmlns=KML_NAMESPACE)
@@ -47,12 +43,12 @@ def create_kml_document():
 def query(area_polygon):
     return find_polygons_in_area(area_polygon)
 
-def find_polygons_in_area(area_polygon):
+def find_polygons_in_area(kmlbuffer, area_polygon):
     logging.info("Consultando area: " + str(area_polygon))
     kml_output, document = create_kml_document()
     polygons_within_area = 0  # Inicializa el contador de polígonos encontrados
     logging.info("Buscando poligonos en el area")
-    for kml_file in kml_files:
+    for kml_file in kmlbuffer:
         for placemark in kml_file.Document.Folder.Placemark:
             try:
                 #if LineString is Present Skip to next placemark
