@@ -2,7 +2,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 import os
 from pykml import parser
-from shapely.geometry.polygon import Polygon
+from shapely.geometry import Polygon, LineString
 from lxml import etree
 import json
 
@@ -19,15 +19,16 @@ logging.getLogger('').addHandler(file_handler)
 
 KML_NAMESPACE = "http://www.opengis.net/kml/2.2"
 
+
 def load_kml_file(kml_file):
     try:
         with open(kml_file, 'rb') as f:
             return parser.parse(f).getroot()
     except FileNotFoundError:
-        raise(FileNotFoundError)
+        raise (FileNotFoundError)
 
-#Esta funcion carga todos los kml en un array, Debe cargar al iniciar el servidor, y luego cargar cada kml que se quiera
-def load_all_kml_files_in_directory(directory):
+
+def load_kml_files(directory):
     kml_files = []
     for file in os.listdir(directory):
         if file.endswith(".kml"):
@@ -35,55 +36,62 @@ def load_all_kml_files_in_directory(directory):
             kml_files.append(load_kml_file(os.path.join(directory, file)))
     return kml_files
 
+
 def create_kml_document():
     kml_output = etree.Element("kml", xmlns=KML_NAMESPACE)
     document = etree.SubElement(kml_output, "Document")
     return kml_output, document
 
-def query(area_polygon):
-    return find_polygons_in_area(area_polygon)
 
-def find_polygons_in_area(kmlbuffer, area_polygon):
-    logging.info("Consultando area: " + str(area_polygon))
+def add_placemark_to_document(document, geometry_type, cord):
+    placemark_element = etree.SubElement(document, "Placemark")
+    if geometry_type == 'Polygon':
+        polygon_element = etree.SubElement(placemark_element, "Polygon")
+        o_b = etree.SubElement(polygon_element, "outerBoundaryIs")
+        l_r = etree.SubElement(o_b, "LinearRing")
+        coord_e = etree.SubElement(l_r, "coordinates")
+        coord_e.text = " ".join([f"{coord[1]},{coord[0]}" for coord in cord])
+    elif geometry_type == 'LineString':
+        linestring_element = etree.SubElement(placemark_element, "LineString")
+        coord_e = etree.SubElement(linestring_element, "coordinates")
+        coord_e.text = " ".join([f"{coord[1]},{coord[0]}" for coord in cord])
+
+
+def find_polygons_and_lines_in_area(kmlbuffer, area_polygon):
+    logging.info(f"Consultando área: {area_polygon}")
     kml_output, document = create_kml_document()
-    polygons_within_area = 0  # Inicializa el contador de polígonos encontrados
-    logging.info("Buscando poligonos en el area")
+    features_within_area = 0
+    logging.info("Buscando polígonos y líneas en el área")
     for kml_file in kmlbuffer:
-        for placemark in kml_file.Document.Folder.Placemark:
+        for p in kml_file.Document.Folder.Placemark:
             try:
-                #if LineString is Present Skip to next placemark
-                print(placemark)
-                coordinates = placemark.Polygon.outerBoundaryIs.LinearRing.coordinates.text.strip()
-                coordinates = coordinates.split()
-                coordinates = [c.split(',')[:2] for c in coordinates]
-                #coordinates.remove('0\n')
-                polygon = Polygon(coordinates)
-                if polygon.intersects(area_polygon):
-                    # Usa el registro en lugar de print
-                    #if logging.getLogger().level == logging.DEBUG:
-                    #    logging.debug("Polígono encontrado: %s", polygon)
-                    polygons_within_area += 1
-                    # Agregar este polígono al KML de salida
-                    #print(placemark.Polygon.outerBoundaryIs.LinearRing.coordinates)
-                    # Agregar este polígono al KML de salida
-                    placemark_element = etree.SubElement(document, "Placemark")
-                    polygon_element = etree.SubElement(placemark_element, "Polygon")
-                    outer_boundary_element = etree.SubElement(polygon_element, "outerBoundaryIs")
-                    linear_ring_element = etree.SubElement(outer_boundary_element, "LinearRing")
-                    coordinates_element = etree.SubElement(linear_ring_element, "coordinates")
-                    coordinates_element.text = " ".join([f"{coord[1]},{coord[0]}" for coord in coordinates])
-            except AttributeError:
-                # Handle the AttributeError here, or log an error if needed.
-                pass
+                gt = None
+                cord = None
+                id = None
+                if hasattr(p, 'Polygon'):
+                    gt = 'Polygon'
+                    cord = p.Polygon.outerBoundaryIs.LinearRing.coordinates.text.strip()
+                    id = p.name
+                elif hasattr(p, 'LineString'):
+                    gt = 'LineString'
+                    cord = p.LineString.coordinates.text.strip()
+                    id = p.name
+                if cord:
+                    ct = [tuple(map(float, c.split(',')[:2])) for c in cord.split()]
+                    if gt == 'Polygon':
+                        geometry = Polygon(ct)
+                    elif gt == 'LineString':
+                        geometry = LineString(ct)
+                    if geometry.intersects(area_polygon):
+                        features_within_area += 1
+                        add_placemark_to_document(document, gt, ct)
+            except Exception:
+                logging.error(f"Error procesando el placemark ID: {id} {gt} {ct}", exc_info=True)
+                continue
 
-    # Comprobar si se encontraron polígonos
-    if polygons_within_area == 0:
-        error_message = {
-            'error': 'No se encontraron polígonos en el área especificada.'}
-        # Retorna un mensaje de error
-        return json.dumps(error_message)
+    if features_within_area == 0:
+        return json.dumps({'error': 'No se encontraron características en el área especificada.'})
 
-    # Convertir el documento KML en una cadena KML válida
-    kml_string = etree.tostring(kml_output, pretty_print=True, xml_declaration=True, encoding='UTF-8')
-    logging.debug(f"Polígonos encontrados : {polygons_within_area}")
+    kml_string = etree.tostring(kml_output, pretty_print=False, xml_declaration=True, encoding='UTF-8')
+    logging.debug(f"Características encontradas: {features_within_area}")
     return kml_string
