@@ -4,9 +4,8 @@ import os
 from pykml import parser
 from shapely.geometry import Polygon, LineString
 from lxml import etree
-
-from lib.messages import ERROR_NO_POLYGONS, \
-    INFO_FOUND_POLYGONS, INFO_QUERY, error_json
+from rtree import index
+from lib.messages import ERROR_NO_POLYGONS, INFO_FOUND_POLYGONS, INFO_QUERY, error_json
 
 # Configuración del registro de eventos
 log_file = 'test_log.log'  # Nombre del archivo de registro
@@ -21,7 +20,6 @@ log.getLogger('').addHandler(file_handler)
 
 KML_NAMESPACE = "http://www.opengis.net/kml/2.2"
 
-
 def load_kml_file(kml_file):
     """Carga un archivo KML.
     Args:
@@ -34,7 +32,6 @@ def load_kml_file(kml_file):
             return parser.parse(f).getroot()
     except FileNotFoundError:
         raise (FileNotFoundError)
-
 
 def load_kml_files(directory):
     """Carga todos los archivos KML en un directorio.
@@ -50,7 +47,6 @@ def load_kml_files(directory):
             kml_files.append(load_kml_file(os.path.join(directory, file)))
     return kml_files
 
-
 def create_kml_document():
     """Crea un documento KML vacío.
     Returns:
@@ -59,7 +55,6 @@ def create_kml_document():
     kml_output = etree.Element("kml", xmlns=KML_NAMESPACE)
     document = etree.SubElement(kml_output, "Document")
     return kml_output, document
-
 
 def add_placemark_to_document(document, geometry_type, cord):
     """ agrega un placemark a un documento KML
@@ -80,14 +75,11 @@ def add_placemark_to_document(document, geometry_type, cord):
         coord_e = etree.SubElement(linestring_element, "coordinates")
         coord_e.text = " ".join([f"{coord[1]},{coord[0]}" for coord in cord])
 
-
 def get_geometry_and_coordinates(p):
     """_summary_
         Extrae la geometría y los coordenadas de un placemark de un KML.
-
     Args:
         p (etree.Element): Un elemento de un KML.
-
     Returns:
         tuple: Un tuple con la geometría y los coordenadas.
     """
@@ -101,7 +93,6 @@ def get_geometry_and_coordinates(p):
         return 'LineString', coord
     return None, None
 
-
 def parse_coordinates(ct):
     """ Parsea los coordenadas de un string de coordenadas.
     Args:
@@ -110,7 +101,6 @@ def parse_coordinates(ct):
         list: Una lista de coordenadas.
     """
     return [tuple(map(float, c.split(',')[:2])) for c in ct.split()]
-
 
 def find_polygons_and_lines_in_area(kmlbuffer, area_polygon):
     """Busca polígonos y líneas en un área especificada.
@@ -123,6 +113,12 @@ def find_polygons_and_lines_in_area(kmlbuffer, area_polygon):
     log.info(INFO_QUERY.format(area_polygon))
     kml_output, document = create_kml_document()
     features_count = 0
+
+    # Crear índice R-tree
+    idx = index.Index()
+    features = []
+
+    # Construir el índice con las geometrías
     for kml_file in kmlbuffer:
         for p in kml_file.Document.Folder.Placemark:
             try:
@@ -132,12 +128,19 @@ def find_polygons_and_lines_in_area(kmlbuffer, area_polygon):
                         geometry = Polygon(coord)
                     elif gt == 'LineString':
                         geometry = LineString(coord)
-                    if geometry.intersects(area_polygon):
-                        features_count += 1
-                        add_placemark_to_document(document, gt, coord)
+                    # Añadir al índice R-tree
+                    idx.insert(len(features), geometry.bounds)
+                    features.append((gt, coord, geometry))
             except Exception:
                 log.error(f"Error procesando el placemark {p.name}, con geometría {gt} y coordenadas {coord}")
                 continue
+
+    # Buscar intersecciones utilizando el índice R-tree
+    for i in list(idx.intersection(area_polygon.bounds)):
+        gt, coord, geometry = features[i]
+        if geometry.intersects(area_polygon):
+            features_count += 1
+            add_placemark_to_document(document, gt, coord)
 
     if features_count == 0:
         return error_json(ERROR_NO_POLYGONS)
