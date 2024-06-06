@@ -3,7 +3,6 @@ __pycache__
 *.log
 DATABASE/*
 DATABASE.7z
-src/DATABASE/*
 dist
 build
 polygon_api_v2.egg-info/*
