@@ -5,7 +5,7 @@ from pykml import parser
 from shapely.geometry import Polygon, LineString
 from lxml import etree
 from rtree import index
-from lib.messages import ERROR_NO_POLYGONS, INFO_FOUND_POLYGONS, INFO_QUERY, \
+from polygon.messages import ERROR_NO_POLYGONS, INFO_FOUND_POLYGONS, INFO_QUERY, \
     error_json
 
 # Configuración del registro de eventos

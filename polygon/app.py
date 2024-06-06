@@ -1,9 +1,9 @@
 import os
 from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
-from lib.kml_process import find_polygons_and_lines_in_area, load_kml_files
-from lib.geometry import get_area_polygon
-import lib.messages as msg
+from polygon.kml_process import find_polygons_and_lines_in_area, load_kml_files
+from polygon.geometry import get_area_polygon
+import polygon.messages as msg
 import logging as log
 
 app = Flask(__name__)
@@ -46,7 +46,3 @@ def index_get():
             "description": "API para obtener poligonos en un area",
         }
     )
-
-
-if __name__ == "__main__":
-    app.run()
