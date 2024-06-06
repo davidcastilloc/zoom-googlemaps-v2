@@ -1,6 +1,5 @@
 from shapely.geometry import Polygon, Point
 from rtree import index
-from kml_process import load_kml_file
 
 # Crea un índice R-tree
 idx = index.Index()
