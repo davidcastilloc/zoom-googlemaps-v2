@@ -1,7 +1,6 @@
 .venv
 __pycache__
 *.log
-DATABASE/*
 DATABASE.7z
 dist
 build
