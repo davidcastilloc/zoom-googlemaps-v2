@@ -3,23 +3,22 @@ from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 from lib.kml_process import find_polygons_and_lines_in_area, load_kml_files
 from lib.geometry import get_area_polygon
-import logging
+import lib.messages as msg
+import logging as log
 
 app = Flask(__name__)
 CORS(app)
 
 # Set up logging
-logging.basicConfig(level=logging.INFO)
+log.basicConfig(level=log.INFO)
 
 # KML LOAD DIRECTORY
 KML_FILE_DIR = os.getenv("KML_FILE_PATH", "src/DATABASE/")
-
 with app.app_context():
-    print("Loading KML files.")
+    log.info(msg.INFO_LOADING_KML)
     kml_buffer = load_kml_files(os.path.join(os.getcwd(), KML_FILE_DIR))
-    print("\nLoading KML files completed.")
-    print(f"KML files loaded: {len(kml_buffer)}\n")
-    print("Starting server.\n")
+    log.info(msg.INFO_LOADED_KML)
+    log.info(msg.INFO_STARTING_SERVER)
 
 
 @app.post("/")
@@ -27,13 +26,14 @@ def index():
     try:
         bounds = request.get_json()
         if not bounds:
-            return jsonify({"error": "Area limite no especificada"}), 400
+            return jsonify({"error": msg.ERROR_NO_AREA}), 400
         area_polygon = get_area_polygon(bounds)
         response = find_polygons_and_lines_in_area(kml_buffer, area_polygon)
         return Response(response, mimetype="text/xml")
     except Exception as e:
-        logging.error(f"An error occurred: {e}")
-        return jsonify({"error": {"message": "Error de sistemas", "traceback": e}}), 500
+        log.error(f"An error occurred: {e}")
+        return jsonify(
+            {"error": {"message": "Error de sistemas", "traceback": e}}), 500
 
 
 @app.get("/")
