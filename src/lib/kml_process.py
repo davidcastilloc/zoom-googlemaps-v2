@@ -1,5 +1,6 @@
 import logging
 from logging.handlers import RotatingFileHandler
+import os
 from pykml import parser
 from shapely.geometry.polygon import Polygon
 from lxml import etree
@@ -18,6 +19,8 @@ logging.getLogger('').addHandler(file_handler)
 
 KML_NAMESPACE = "http://www.opengis.net/kml/2.2"
 
+# Use environment variable for KML file path
+kml_file = os.getenv("KML_FILE_PATH", "src/DATABASE/")
 
 def load_kml_file(kml_file):
     try:
@@ -26,48 +29,56 @@ def load_kml_file(kml_file):
     except FileNotFoundError:
         raise(FileNotFoundError)
 
+#Esta funcion carga todos los kml en un array, Debe cargar al iniciar el servidor, y luego cargar cada kml que se quiera
+def load_all_kml_files_in_directory(directory):
+    kml_files = []
+    for file in os.listdir(directory):
+        if file.endswith(".kml"):
+            kml_files.append(load_kml_file(os.path.join(directory, file)))
+    return kml_files
+
+kml_files = load_all_kml_files_in_directory(kml_file)
 
 def create_kml_document():
     kml_output = etree.Element("kml", xmlns=KML_NAMESPACE)
     document = etree.SubElement(kml_output, "Document")
     return kml_output, document
 
+def query(area_polygon):
+    return find_polygons_in_area(area_polygon)
 
-def find_polygons_in_area(kml_file, area_polygon):
+def find_polygons_in_area(area_polygon):
     logging.info("Consultando area: " + str(area_polygon))
-    kml_root = load_kml_file(kml_file)
-
-    if kml_root is None:
-        error_message = {'error': 'El archivo KML no fue encontrado.'}
-        # Retorna un mensaje de error y 0 polígonos encontrados
-        return json.dumps(error_message), 0
-
     kml_output, document = create_kml_document()
     polygons_within_area = 0  # Inicializa el contador de polígonos encontrados
     logging.info("Buscando poligonos en el area")
-    for placemark in kml_root.Document.Folder.Placemark:
-        try:
-            coordinates = placemark.Polygon.outerBoundaryIs.LinearRing.coordinates.text.strip()
-            coordinates = coordinates.split()
-            coordinates = [c.split(',')[:2] for c in coordinates]
-            polygon = Polygon(coordinates)
-            if polygon.intersects(area_polygon):
-                # Usa el registro en lugar de print
-                #if logging.getLogger().level == logging.DEBUG:
-                #    logging.debug("Polígono encontrado: %s", polygon)
-                polygons_within_area += 1
-                # Agregar este polígono al KML de salida
-                print(placemark.Polygon.outerBoundaryIs.LinearRing.coordinates)
-                # Agregar este polígono al KML de salida
-                placemark_element = etree.SubElement(document, "Placemark")
-                polygon_element = etree.SubElement(placemark_element, "Polygon")
-                outer_boundary_element = etree.SubElement(polygon_element, "outerBoundaryIs")
-                linear_ring_element = etree.SubElement(outer_boundary_element, "LinearRing")
-                coordinates_element = etree.SubElement(linear_ring_element, "coordinates")
-                coordinates_element.text = " ".join([f"{coord[1]},{coord[0]}" for coord in coordinates])
-        except AttributeError:
-            # Handle the AttributeError here, or log an error if needed.
-            pass
+    for kml_file in kml_files:
+        for placemark in kml_file.Document.Folder.Placemark:
+            try:
+                #if LineString is Present Skip to next placemark
+                print(placemark)
+                coordinates = placemark.Polygon.outerBoundaryIs.LinearRing.coordinates.text.strip()
+                coordinates = coordinates.split()
+                coordinates = [c.split(',')[:2] for c in coordinates]
+                #coordinates.remove('0\n')
+                polygon = Polygon(coordinates)
+                if polygon.intersects(area_polygon):
+                    # Usa el registro en lugar de print
+                    #if logging.getLogger().level == logging.DEBUG:
+                    #    logging.debug("Polígono encontrado: %s", polygon)
+                    polygons_within_area += 1
+                    # Agregar este polígono al KML de salida
+                    #print(placemark.Polygon.outerBoundaryIs.LinearRing.coordinates)
+                    # Agregar este polígono al KML de salida
+                    placemark_element = etree.SubElement(document, "Placemark")
+                    polygon_element = etree.SubElement(placemark_element, "Polygon")
+                    outer_boundary_element = etree.SubElement(polygon_element, "outerBoundaryIs")
+                    linear_ring_element = etree.SubElement(outer_boundary_element, "LinearRing")
+                    coordinates_element = etree.SubElement(linear_ring_element, "coordinates")
+                    coordinates_element.text = " ".join([f"{coord[1]},{coord[0]}" for coord in coordinates])
+            except AttributeError:
+                # Handle the AttributeError here, or log an error if needed.
+                pass
 
     # Comprobar si se encontraron polígonos
     if polygons_within_area == 0:

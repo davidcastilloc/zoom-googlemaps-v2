@@ -8,28 +8,8 @@ import logging
 app = Flask(__name__)
 CORS(app)
 
-# Use environment variable for KML file path
-kml_file = os.getenv("KML_FILE_PATH", "src/DATABASE/mixed-geometry-v3.kml")
-
 # Set up logging
 logging.basicConfig(level=logging.INFO)
-
-@app.post("/determinar_area")
-def get_kml_area():
-    try:
-        bounds = request.get_json()
-        if not bounds:
-            return jsonify({"error": "Area limite no especificada"}), 400
-        area_polygon = get_area_polygon(bounds)
-        logging.info(f"Area ingresada: {area_polygon}")
-        # CargarKML con el area ingresada
-        logging.info(f"Archivo KML cargado: {kml_file}")
-        print(kml_file)
-        return Response(kml_file, mimetype="text/text")
-    except Exception as e:
-        logging.error(f"An error occurred: {e}")
-        return jsonify({"error": {"message": "Error de sistemas", "traceback": e}}), 500
-
 
 @app.post("/")
 def index():
@@ -38,7 +18,7 @@ def index():
         if not bounds:
             return jsonify({"error": "Area limite no especificada"}), 400
         area_polygon = get_area_polygon(bounds)
-        response = find_polygons_in_area(kml_file, area_polygon)
+        response = find_polygons_in_area(area_polygon)
         return Response(response, mimetype="text/xml")
     except Exception as e:
         logging.error(f"An error occurred: {e}")
