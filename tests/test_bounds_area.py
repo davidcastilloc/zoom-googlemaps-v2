@@ -1,7 +1,8 @@
 import unittest
 import shapely.geometry
+
+from polygon.geometry import get_area_polygon
 # Asegúrate de importar la función desde tu módulo
-from src.lib.geometry import get_area_polygon
 
 
 class TestGetAreaPolygon(unittest.TestCase):
