@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 setup(
     name="polygon",
     version="2.0.0",
-    description="API para obtener poligonos en un area",
+    description="API para obtener poligonos en un area.",
     author="David Castillo",
     author_email="vikruzdavid@gmail.com",
     url="https://github.com/davidcastilloc/zoom-googlemaps-v2",
@@ -36,7 +36,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "polygon=main:app",
-        ],
+            "polygon=polygon.server:main",
+        ]
     },
 )
