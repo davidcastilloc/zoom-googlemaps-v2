@@ -20,6 +20,7 @@ log.getLogger('').addHandler(file_handler)
 
 KML_NAMESPACE = "http://www.opengis.net/kml/2.2"
 
+
 def load_kml_file(kml_file):
     """Carga un archivo KML.
     Args:
@@ -32,6 +33,7 @@ def load_kml_file(kml_file):
             return parser.parse(f).getroot()
     except FileNotFoundError:
         raise (FileNotFoundError)
+
 
 def load_kml_files(directory):
     """Carga todos los archivos KML en un directorio.
@@ -47,6 +49,7 @@ def load_kml_files(directory):
             kml_files.append(load_kml_file(os.path.join(directory, file)))
     return kml_files
 
+
 def create_kml_document():
     """Crea un documento KML vacío.
     Returns:
@@ -55,6 +58,7 @@ def create_kml_document():
     kml_output = etree.Element("kml", xmlns=KML_NAMESPACE)
     document = etree.SubElement(kml_output, "Document")
     return kml_output, document
+
 
 def add_placemark_to_document(document, geometry_type, cord):
     """ agrega un placemark a un documento KML
@@ -75,6 +79,7 @@ def add_placemark_to_document(document, geometry_type, cord):
         coord_e = etree.SubElement(linestring_element, "coordinates")
         coord_e.text = " ".join([f"{coord[1]},{coord[0]}" for coord in cord])
 
+
 def get_geometry_and_coordinates(p):
     """_summary_
         Extrae la geometría y los coordenadas de un placemark de un KML.
@@ -93,6 +98,7 @@ def get_geometry_and_coordinates(p):
         return 'LineString', coord
     return None, None
 
+
 def parse_coordinates(ct):
     """ Parsea los coordenadas de un string de coordenadas.
     Args:
@@ -101,6 +107,7 @@ def parse_coordinates(ct):
         list: Una lista de coordenadas.
     """
     return [tuple(map(float, c.split(',')[:2])) for c in ct.split()]
+
 
 def find_polygons_and_lines_in_area(kmlbuffer, area_polygon):
     """Busca polígonos y líneas en un área especificada.
