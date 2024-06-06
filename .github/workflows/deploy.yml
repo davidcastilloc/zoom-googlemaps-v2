@@ -23,6 +23,7 @@ jobs:
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          ${{ secrets.EC2_KEY }} > deploy.pem
   deploy:
     runs-on: ubuntu-latest
     needs: lint
@@ -32,7 +33,7 @@ jobs:
         uses: saranraj3195/sparkout-deployment@v2
         with:
           # SSH private key for authentication
-          DEPLOY_KEY: ${{ secrets.EC2_KEY }}
+          DEPLOY_KEY: deploy.pem
           # SSH username
           USERNAME:  ${{ vars.EC2_USERNAME }}
           # IP address of the server
