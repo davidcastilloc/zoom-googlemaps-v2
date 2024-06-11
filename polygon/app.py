@@ -1,3 +1,15 @@
+# -*- coding: utf-8 -*-
+"""
+    API para obtener poligonos y LineStrings Recibiendo
+    como parametro un perimetro
+    METHODS:
+        GET /
+            Información sobre la API
+        POST /
+            Recibiendo como parametro un perimetro,
+            devuelve un KML con los poligonos y LineStrings
+            que se encuentran dentro del perimetro
+"""
 import os
 from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
@@ -5,6 +17,7 @@ from polygon.kml_process import find_polygons_and_lines_in_area, load_kml_files
 from polygon.geometry import get_area_polygon
 import polygon.messages as msg
 import logging as log
+from setup import __version__, __name__
 
 app = Flask(__name__)
 CORS(app)
@@ -32,8 +45,13 @@ def index():
         return Response(response, mimetype="text/xml")
     except Exception as e:
         log.error(f"An error occurred: {e}")
-        return jsonify(
-            {"error": {"message": "Error de sistemas", "traceback": e}}), 500
+        return jsonify({
+            "error":
+                {
+                    "message": "Error de sistemas", 
+                    "traceback": e
+                }
+            }), 500
 
 
 @app.get("/")
@@ -41,8 +59,12 @@ def index_get():
     # Get Method  Info app version name and description
     return jsonify(
         {
-            "name": "Polygon API",
-            "version": "2.0.0",
-            "description": "API para obtener poligonos en un area",
+            "name": __name__,
+            "version": __version__,
+            "description": "API para obtener poligonos y LineStrings Recibiendo como parametro un perimetro",
         }
     )
+
+
+if __name__ == "__main__":
+    app.run(debug=False)
