@@ -59,18 +59,17 @@ jobs:
           username: ${{ vars.EC2_USERNAME }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            pip uninstall -y PolygonsAPI
             # delete dist folder
             rm -rf dist
             # delete old virtual environment
-            rm -rf venv
+            rm -rf /home/${{ vars.EC2_USERNAME }}/venv
             # create a new virtual environment
             python3 -m venv /home/${{ vars.EC2_USERNAME }}/venv
             # activate the virtual environment
             source /home/${{ vars.EC2_USERNAME }}/venv/bin/activate
             # install the package
             pip uninstall -y PolygonsAPI
-            pip install dist/*.whl
+            pip install /home/${{ vars.EC2_USERNAME }}dist/*.whl
             # start detached process to run server in background
             # go to project 
             nohup gunicorn -w 4 -b 0.0.0.0:5001 'polygon.server:create_server' &
