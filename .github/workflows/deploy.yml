@@ -43,14 +43,11 @@ jobs:
         with:
           name: dist
           path: dist
-      - name: save the pem file
-        run: |
-          echo "${{ secrets.EC2_KEY }}" > /home/${{ vars.EC2_USERNAME }}/deploy.pem
       - name: Deploy Files on EC2
         uses: saranraj3195/sparkout-deployment@v2
         with:
           # SSH private key for authentication
-          DEPLOY_KEY: /home/${{ vars.EC2_USERNAME }}/deploy.pem
+          DEPLOY_KEY: ${{ secrets.EC2_KEY }}
           # SSH username
           USERNAME:  ${{ vars.EC2_USERNAME }}
           # IP address of the server
