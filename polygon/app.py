@@ -47,7 +47,7 @@ def index():
         return jsonify({
             "error":
                 {
-                    "message": "Error de sistemas", 
+                    "message": "Error de sistemas",
                     "traceback": e
                 }
             }), 500
