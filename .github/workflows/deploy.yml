@@ -59,33 +59,16 @@ jobs:
           username: ${{ vars.EC2_USERNAME }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            # delete dist folder
-            rm -rf /home/${{ vars.EC2_USERNAME }}/dist
-            # delete old virtual environment
-            rm -rf /home/${{ vars.EC2_USERNAME }}/venv
-            # create a new virtual environment
-            python3 -m venv /home/${{ vars.EC2_USERNAME }}/venv
-            # activate the virtual environment
-            source /home/${{ vars.EC2_USERNAME }}/venv/bin/activate
-            # install the package
             pip uninstall -y PolygonsAPI
-            pip install /home/${{ vars.EC2_USERNAME }}/dist/*.whl
-            # start detached process to run server in background
-            # go to project 
-            nohup gunicorn -w 4 -b 0.0.0.0:5001 'polygon.server:create_server' &
-            # disconect from server
-            exit
-      - name: Check Server Status
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ vars.EC2_HOST }}
-          username: ${{ vars.EC2_USERNAME }}
-          key: ${{ secrets.EC2_KEY }}
-          script: |
+            pip install dist/*.whl
+            # start detached process to run server
+            nohup polygons &
+            # wait for server to start
+            sleep 10
             # check if server is running
             if ! pgrep -f "polygons" > /dev/null; then
               echo "Server is not running"
               exit 1
             fi
             echo "Server is running"
-            exit 0
+            # check if server is up
