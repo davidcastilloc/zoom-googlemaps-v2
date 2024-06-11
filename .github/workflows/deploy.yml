@@ -70,5 +70,5 @@ jobs:
           script: |
             pip3 install -r /home/${{ vars.EC2_USERNAME }}/${{github.event.repository.name}}/requirements.txt
             # Run the Flask app
-            FLASK_APP=/home/${{ vars.EC2_USERNAME }}/${{github.event.repository.name}}/app.py flask run --host=0.0.0.0 --port=5000
+            FLASK_APP=/home/${{ vars.EC2_USERNAME }}/${{github.event.repository.name}}/app.py flask run --host=0.0.0.0 --port=3000
             # Remove the old package
