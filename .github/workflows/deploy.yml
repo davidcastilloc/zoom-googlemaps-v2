@@ -60,6 +60,11 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             pip uninstall -y PolygonsAPI
+            # create a new virtual environment
+            python -m venv venv
+            # activate the virtual environment
+            source venv/bin/activate
+            # install the package
             pip install dist/*.whl
             # start detached process to run server
             nohup polygons &
