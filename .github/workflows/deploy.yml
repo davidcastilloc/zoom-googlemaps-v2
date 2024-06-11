@@ -43,21 +43,15 @@ jobs:
         with:
           name: dist
           path: dist
-      - name: Deploy Files on EC2
-        uses: saranraj3195/sparkout-deployment@v2
+      - name: Deploy to web server
+        uses: moonpathbg/scp_uploader@latest
         with:
-          # SSH private key for authentication
-          DEPLOY_KEY: ${{ secrets.EC2_KEY }}
-          # SSH username
-          USERNAME:  ${{ vars.EC2_USERNAME }}
-          # IP address of the server
-          SERVER_IP: ${{ vars.EC2_HOST }}
-          # SSH port of the server
-          SERVER_PORT: 22
-          # Destination directory on the server
-          SERVER_DESTINATION: /home/${{ vars.EC2_USERNAME }}
-          # Folder to deploy
-          FOLDER: ${{github.event.repository.name}}
+            host: ${{ vars.EC2_HOST }}
+            port: 22
+            username: ${{ vars.EC2_USERNAME }}
+            key : ${{ secrets.EC2_KEY }}
+            source: "./"
+            target: "~/"
       - name: Run Script for Start Server
         uses: appleboy/ssh-action@master
         with:
