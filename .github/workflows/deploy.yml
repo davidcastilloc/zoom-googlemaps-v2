@@ -65,13 +65,14 @@ jobs:
             # delete old virtual environment
             rm -rf venv
             # create a new virtual environment
-            python3 -m venv venv
+            python3 -m venv /home/${{ vars.EC2_USERNAME }}/venv
             # activate the virtual environment
-            source venv/bin/activate
+            source /home/${{ vars.EC2_USERNAME }}/venv/bin/activate
             # install the package
             pip uninstall -y PolygonsAPI
             pip install dist/*.whl
             # start detached process to run server in background
+            # go to project 
             nohup gunicorn -w 4 -b 0.0.0.0:5001 'polygon.server:create_server' &
             # disconect from server
             exit
