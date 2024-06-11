@@ -52,18 +52,23 @@ jobs:
             key : ${{ secrets.EC2_KEY }}
             source: "./"
             target: "~/"
-      - name: Run Script for install and start
+      - name: Run Script for Start Server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ vars.EC2_HOST }}
           username: ${{ vars.EC2_USERNAME }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            # Stop the old server
-            sudo systemctl stop polygons
-            # Remove the old server
             pip uninstall -y PolygonsAPI
-            # Install all whl files in dist
             pip install dist/*.whl
-            # Start the new server
-            polygons
+            # start detached process to run server
+            nohup polygons &
+            # wait for server to start
+            sleep 10
+            # check if server is running
+            if ! pgrep -f "polygons" > /dev/null; then
+              echo "Server is not running"
+              exit 1
+            fi
+            echo "Server is running"
+            exit 0
