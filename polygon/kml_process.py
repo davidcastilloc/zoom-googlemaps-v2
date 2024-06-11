@@ -5,8 +5,8 @@ from pykml import parser
 from shapely.geometry import Polygon, LineString
 from lxml import etree
 from rtree import index
-from polygon.messages import ERROR_NO_POLYGONS, INFO_FOUND_POLYGONS, INFO_QUERY, \
-    error_json
+from polygon.messages import ERROR_NO_POLYGONS, INFO_FOUND_POLYGONS, \
+    INFO_QUERY, error_json
 
 # Configuración del registro de eventos
 log_file = 'test_log.log'  # Nombre del archivo de registro
@@ -140,7 +140,7 @@ def find_polygons_and_lines_in_area(kmlbuffer, area_polygon):
                     idx.insert(len(features), geometry.bounds)
                     features.append((gt, coord, geometry))
             except Exception:
-                log.error(f"Error procesando el placemark {p.name}, con geometría {gt} y coordenadas {coord}")
+                log.error(f"Error on {p.name}, type: {gt} specs: {coord}")
                 continue
 
     # Buscar intersecciones utilizando el índice R-tree

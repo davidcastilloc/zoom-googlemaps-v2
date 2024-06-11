@@ -43,6 +43,9 @@ jobs:
         with:
           name: dist
           path: dist
+      - name: save the pem file
+        run: |
+          echo "${{ secrets.EC2_KEY }}" > deploy.pem
       - name: Deploy Files on EC2
         uses: saranraj3195/sparkout-deployment@v2
         with:

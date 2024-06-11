@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 setup(
-    name="polygon",
+    name="Polygon API",
     version="2.0.0",
-    description="API para obtener poligonos en un area.",
+    description="API para obtener poligonos y LineStrings Recibiendo como parametro un perimetro",
     author="David Castillo",
     author_email="vikruzdavid@gmail.com",
     url="https://github.com/davidcastilloc/zoom-googlemaps-v2",
