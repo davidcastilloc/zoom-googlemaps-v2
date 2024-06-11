@@ -17,7 +17,6 @@ from polygon.kml_process import find_polygons_and_lines_in_area, load_kml_files
 from polygon.geometry import get_area_polygon
 import polygon.messages as msg
 import logging as log
-from setup import __version__, __name__
 
 app = Flask(__name__)
 CORS(app)
@@ -59,8 +58,8 @@ def index_get():
     # Get Method  Info app version name and description
     return jsonify(
         {
-            "name": __name__,
-            "version": __version__,
+            "name": "Polygons API",
+            "version": "2.0.0",
             "description": "API para obtener poligonos y LineStrings Recibiendo como parametro un perimetro",
         }
     )
