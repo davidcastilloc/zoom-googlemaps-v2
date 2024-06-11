@@ -60,7 +60,7 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             # delete dist folder
-            rm -rf dist
+            rm -rf /home/${{ vars.EC2_USERNAME }}/dist
             # delete old virtual environment
             rm -rf /home/${{ vars.EC2_USERNAME }}/venv
             # create a new virtual environment
