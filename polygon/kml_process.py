@@ -4,9 +4,9 @@ import os
 from pykml import parser
 from shapely.geometry import Polygon, LineString
 from lxml import etree
-
-from lib.messages import ERROR_NO_POLYGONS, \
-    INFO_FOUND_POLYGONS, INFO_QUERY, error_json
+from rtree import index
+from polygon.messages import ERROR_NO_POLYGONS, INFO_FOUND_POLYGONS, \
+    INFO_QUERY, error_json
 
 # Configuración del registro de eventos
 log_file = 'test_log.log'  # Nombre del archivo de registro
@@ -84,10 +84,8 @@ def add_placemark_to_document(document, geometry_type, cord):
 def get_geometry_and_coordinates(p):
     """_summary_
         Extrae la geometría y los coordenadas de un placemark de un KML.
-
     Args:
         p (etree.Element): Un elemento de un KML.
-
     Returns:
         tuple: Un tuple con la geometría y los coordenadas.
     """
@@ -123,6 +121,12 @@ def find_polygons_and_lines_in_area(kmlbuffer, area_polygon):
     log.info(INFO_QUERY.format(area_polygon))
     kml_output, document = create_kml_document()
     features_count = 0
+
+    # Crear índice R-tree
+    idx = index.Index()
+    features = []
+
+    # Construir el índice con las geometrías
     for kml_file in kmlbuffer:
         for p in kml_file.Document.Folder.Placemark:
             try:
@@ -132,12 +136,19 @@ def find_polygons_and_lines_in_area(kmlbuffer, area_polygon):
                         geometry = Polygon(coord)
                     elif gt == 'LineString':
                         geometry = LineString(coord)
-                    if geometry.intersects(area_polygon):
-                        features_count += 1
-                        add_placemark_to_document(document, gt, coord)
+                    # Añadir al índice R-tree
+                    idx.insert(len(features), geometry.bounds)
+                    features.append((gt, coord, geometry))
             except Exception:
-                log.error(f"Error procesando el placemark {p.name}, con geometría {gt} y coordenadas {coord}")
+                log.error(f"Error on {p.name}, type: {gt} specs: {coord}")
                 continue
+
+    # Buscar intersecciones utilizando el índice R-tree
+    for i in list(idx.intersection(area_polygon.bounds)):
+        gt, coord, geometry = features[i]
+        if geometry.intersects(area_polygon):
+            features_count += 1
+            add_placemark_to_document(document, gt, coord)
 
     if features_count == 0:
         return error_json(ERROR_NO_POLYGONS)
