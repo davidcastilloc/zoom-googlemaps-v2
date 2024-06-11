@@ -1,8 +1,9 @@
 .venv
 __pycache__
 *.log
-DATABASE/*
 DATABASE.7z
 dist
 build
 polygon_api_v2.egg-info/*
+polygon.egg-info/*
+Polygon_API.egg-info/*
