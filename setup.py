@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 setup(
-    name="Polygon API",
+    name="PolygonsAPI",
     version="2.0.0",
     description="API para obtener poligonos y LineStrings Recibiendo como parametro un perimetro",
     author="David Castillo",
@@ -36,7 +36,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "polygon=polygon.server:main",
+            "polygons=polygon.server:main",
         ]
     },
 )

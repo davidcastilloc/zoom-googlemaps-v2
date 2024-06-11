@@ -52,14 +52,18 @@ jobs:
             key : ${{ secrets.EC2_KEY }}
             source: "./"
             target: "~/"
-      - name: Run Script for Start Server
+      - name: Run Script for install and start
         uses: appleboy/ssh-action@master
         with:
           host: ${{ vars.EC2_HOST }}
           username: ${{ vars.EC2_USERNAME }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            pip3 install -r /home/${{ vars.EC2_USERNAME }}/${{github.event.repository.name}}/requirements.txt
-            # Run the Flask app
-            FLASK_APP=/home/${{ vars.EC2_USERNAME }}/${{github.event.repository.name}}/app.py flask run --host=0.0.0.0 --port=3000
-            # Remove the old package
+            # Stop the old server
+            sudo systemctl stop polygons
+            # Remove the old server
+            pip uninstall -y PolygonsAPI
+            # Install all whl files in dist
+            pip install dist/*.whl
+            # Start the new server
+            polygons

@@ -4,6 +4,4 @@ __pycache__
 DATABASE.7z
 dist
 build
-polygon_api_v2.egg-info/*
-polygon.egg-info/*
-Polygon_API.egg-info/*
+*.egg-info/
