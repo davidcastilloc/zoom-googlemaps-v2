@@ -13,9 +13,9 @@
 import os
 from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
-from polygon.kml_process import find_polygons_and_lines_in_area, load_kml_files
-from polygon.geometry import get_area_polygon
-import polygon.messages as msg
+from kml_process import find_polygons_and_lines_in_area, load_kml_files
+from geometry import get_area_polygon
+import messages as msg
 import logging as log
 
 app = Flask(__name__)
@@ -66,4 +66,4 @@ def index_get():
 
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=True)
