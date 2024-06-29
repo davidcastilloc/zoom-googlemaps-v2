@@ -46,7 +46,7 @@ jobs:
             username: ${{ vars.EC2_USERNAME }}
             key : ${{ secrets.EC2_KEY }}
             source: "./"
-            target: "~/"
+            target: "~/production"
       - name: Restart Services for Start Server
         uses: appleboy/ssh-action@master
         with:
