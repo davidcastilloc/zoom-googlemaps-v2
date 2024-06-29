@@ -65,5 +65,10 @@ def index_get():
     )
 
 
+@app.get("/heartbeat")
+def heartbeat():
+    return "OK"
+
+
 if __name__ == "__main__":
     app.run(debug=True)
