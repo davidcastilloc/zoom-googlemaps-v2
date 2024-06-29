@@ -57,6 +57,7 @@ jobs:
           username: ${{ vars.EC2_USERNAME }}
           key: ${{ secrets.EC2_KEY }}
           script: |
+            cd zoom-googlemaps-v2-main
             python3 -m venv .venv
             source .venv/bin/activate
             pip install -r requirements.txt
