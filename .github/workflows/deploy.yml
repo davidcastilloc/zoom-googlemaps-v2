@@ -38,11 +38,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Download Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: dist
-          path: dist
       - name: Deploy to web server
         uses: moonpathbg/scp_uploader@latest
         with:
@@ -52,23 +47,11 @@ jobs:
             key : ${{ secrets.EC2_KEY }}
             source: "./"
             target: "~/"
-      - name: Run Script for Start Server
+      - name: Restart Services for Start Server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ vars.EC2_HOST }}
           username: ${{ vars.EC2_USERNAME }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            pip uninstall -y PolygonsAPI
-            pip install dist/*.whl
-            # start detached process to run server
-            nohup polygons &
-            # wait for server to start
-            sleep 10
-            # check if server is running
-            if ! pgrep -f "polygons" > /dev/null; then
-              echo "Server is not running"
-              exit 1
-            fi
-            echo "Server is running"
-            # check if server is up
+            sudo systemctl restart polygons
