@@ -29,7 +29,7 @@ jobs:
       - name: upload sources to artifact
         uses: actions/upload-artifact@v3
         with:
-          name: .
+          name: "."
           path: ${{ github.action_path }}
   deploy:
     runs-on: ubuntu-latest
@@ -38,7 +38,7 @@ jobs:
       - name: Download all sources from artifact
         uses: actions/download-artifact@v3
         with:
-          name: .
+          name: "."
           path: ${{ github.action_path }}
       - name: Copy all sources to server
         uses: moonpathbg/scp_uploader@latest
@@ -47,7 +47,7 @@ jobs:
             port: 22
             username: ${{ vars.EC2_USERNAME }}
             key : ${{ secrets.EC2_KEY }}
-            source: .
+            source: "."
             target: "~/production"
       - name: Restart Services for Start Server
         uses: appleboy/ssh-action@master
