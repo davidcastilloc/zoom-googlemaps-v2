@@ -5,4 +5,4 @@ DATABASE.7z
 dist
 build
 *.egg-info/
-DATABASE/mixed-geometry-v2.kml
+kmlbig/*
