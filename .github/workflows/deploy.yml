@@ -47,7 +47,7 @@ jobs:
           username: ${{ vars.EC2_USERNAME }}
           key: ${{ secrets.EC2_KEY }}
           source: "deploy"
-          target: "~/zoom-googlemaps-v2-prod"
+          target: "~/zoom-googlemaps-v2-main"
           strip_components: 1
           rm: true
       - name: Restart Services for Start Server
