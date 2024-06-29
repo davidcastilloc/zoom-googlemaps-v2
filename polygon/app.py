@@ -25,7 +25,7 @@ CORS(app)
 log.basicConfig(level=log.INFO)
 
 # KML LOAD DIRECTORY
-kml_path = os.getenv("KML_FILE_PATH", "DATABASE")
+kml_path = os.getenv("KML_FILE_PATH", "/home/ec2-user/DATABASE")
 with app.app_context():
     log.info(msg.INFO_LOADING_KML)
     kml_buffer = load_kml_files(os.path.join(os.getcwd(), kml_path))
